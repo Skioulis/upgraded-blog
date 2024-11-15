@@ -1,6 +1,11 @@
-from flask import Flask, render_template
+import os
+from flask import Flask, render_template, request
 import requests
 from post import Post
+from dotenv import load_dotenv
+
+load_dotenv("env/.env")
+mail_password = os.getenv("mail_password")
 
 
 app = Flask(__name__)
@@ -22,9 +27,17 @@ def home():
 def about():
     return render_template("about.html")
 
-@app.route('/contact')
+@app.route("/contact", methods=["GET", "POST"])
 def contact():
-    return render_template("contact.html")
+    if request.method == "POST":
+        data = request.form
+        print(data["name"])
+        print(data["email"])
+        print(data["phone"])
+        print(data["message"])
+        return render_template("contact.html", msg_sent=True)
+    return render_template("contact.html", msg_sent=False)
+
 
 @app.route('/blog/<int:id>')
 def get_post(id):
@@ -34,6 +47,8 @@ def get_post(id):
             to_post = blog_post
 
     return render_template("post.html", post=to_post)
+
+
 
 if __name__ == "__main__":
     app.run(debug=True)
